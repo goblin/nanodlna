@@ -22,6 +22,7 @@ sub response {
 	my $date = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime);
 	return <<EOR ;
 HTTP/1.1 200 OK\r
+CACHE-CONTROL: max-age=360000\r
 DATE: $date\r
 ST: upnp:rootdevice\r
 USN: uuid:${uuid}::upnp:rootdevice\r
