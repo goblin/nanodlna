@@ -1,0 +1,99 @@
+nanodlna
+========
+
+This is the smallest UPnP/DLNA server that I could find. Its function
+is to provide a file list to a Media Renderer. It's just 200 lines of Perl.
+
+It doesn't use indexing, databases, inotify or any bloated stuff like that.
+It just serves the directory you ask it to, no questions asked.
+
+It doesn't even actually serve the files, you need a separate HTTP server
+for that (see below for the reason). Searching is also unsupported.
+
+WARNING AND STATUS
+==================
+
+This is very early alpha-stage software. It works for me, but might break
+for you. I'm not responsible for anything it does, including but not limited
+to any data loss or blown up disks. Use at your own risk, and be very
+paranoid about it (create a separate user, only give it read-only access
+to your files, don't expose it to public internet, etc).
+
+FEATURES
+========
+
+Serves files (tested on audio, video and images). Supports adding .srt
+subtitles to movies (as long as the file has the same name as the movie).
+No transcoding, no search, no nothing. It's probably not even DLNA compliant
+and may sometimes confuse Media Renderers (for instance it won't advertise
+itself with SSDP NOTIFYs, your Media Renderer will have to initiate
+a search).
+
+INSTALLATION
+============
+
+You need a couple Perl modules from CPAN. Have a look at the `use` lines
+at the top of the `.pl` files to see what is needed.
+
+You'll also need an HTTP server to serve your files.
+
+CONFIGURATION
+=============
+
+No config files are used for simplicity. You need 3-4 pieces of information:
+1. Let $CONTENT_SERVER be the HTTP server location serving the actual
+   content. It must use the public IP that will be accessible by your Media
+   Renderer. For instance, use http://192.168.0.1
+2. Let $ROOT_DIR be the filesystem directory you pointed your HTTP server
+   to, e.g. /srv/media
+3. Let $UPNP_SERVER be the HTTP location of the machine that's running
+   nanodlna. It'll most likely be the same IP of $CONTENT_SERVER, but with
+   different port. `./http_server.pl` will use port 3000 by default
+   (this can be changed in Dancer somehow). So e.g. http://192.168.0.1:3000
+4. If you don't want to use a randomly-generated UUID, but provide your own
+   (e.g. for persistence), store it in $UUID. Otherwise this variable can
+   be empty.
+
+RUNNING
+=======
+
+1. Start your HTTP server
+2. Start nanodlna with `./http_server.pl $ROOT_DIR $CONTENT_SERVER`
+3. Start the SSDP responder with `./ssdp_responder.pl $UPNP_SERVER $UUID`
+4. Profit! You should see 'nanodlna' in your Media Renderers.
+
+SOME BACKGROUND
+===============
+
+miniDLNA may be quite small, but the database requirement, overhead of
+scanning all the media on startup and problems with updating the library
+(inotify doesn't work over samba, etc) make it quite hard to use for me.
+
+I never cared about any media libraries, I prefer to sort things on my own
+using filesystems.
+
+gsimon75 tried to strip all this stuff and created microdlna, but his README
+is empty so I'm not sure if it works. It's also quite large, microdlna.c is
+nearly 1000 lines.
+
+All good stuff, but you can see it's not quite enough for me. miniDLNA was
+useful until I had to restart it for the 100th time. Since then I only used
+it to reverse engineer the UPnP and DLNA stuff (cause reading the actual
+specs was pretty painful). Most of the XML in nanodlna was shamelessly ripped
+from miniDLNA. Kudos to tcpdump/wireshark too, very nice tool.
+
+So here comes nanodlna. Much smaller, written in Perl, uses a couple of
+libraries but nothing major, these should all be easily accessible in your
+distro or CPAN. I originally also included the $CONTENT_SERVER capabilities
+in it to try to make it easier to deploy, but Dancer2's send_file() doesn't
+seem to support byte ranges, so seeking didn't work (a big thing for me).
+It was also synchronous and single-threaded, so it only supported one
+connection at a time (the `./http_server.pl` still does, but since it doesn't
+serve media, it shouldn't be that much of a problem).
+
+Enjoy and have fun!
+
+LICENSE
+=======
+
+GPLv3 or later, see https://www.gnu.org/licenses/gpl.txt

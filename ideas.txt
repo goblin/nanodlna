@@ -1,0 +1,4 @@
+- automount .rars via fuse
+- 7.1 truehd transcoded do dts_hd audio stream maybe can be put in
+	another <res> within an <item> like subtitles
+- multiple subtitle languages from files
