@@ -35,6 +35,9 @@ INSTALLATION
 You need a couple Perl modules from CPAN. Have a look at the `use` lines
 at the top of the `.pl` files to see what is needed.
 
+Note that you'll need a recent version of Dancer2. v0.152000 didn't
+work for me, but v0.200002 did.
+
 You'll also need an HTTP server to serve your files.
 
 CONFIGURATION
