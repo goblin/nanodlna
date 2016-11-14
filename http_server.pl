@@ -172,6 +172,9 @@ post '/ctl/content_dir' => sub {
 		my $updid = 1;
 
 		$result = encode_entities($result);
+		
+		push_response_header 'Cache-control' => 'no-cache';
+		push_response_header 'Pragma' => 'no-cache'
 
 		return <<EOR ;
 <?xml version="1.0" encoding="utf-8"?>
