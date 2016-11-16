@@ -14,6 +14,8 @@ use warnings;
 my $root_dir = $ARGV[0];
 my $http_server = $ARGV[1];
 
+my $updid = 1;
+
 %HTML::Entities::char2entity = %{
 	XML::Entities::Data::char2entity('all');
 };
@@ -169,12 +171,12 @@ post '/ctl/content_dir' => sub {
 		content_type 'text/xml; charset="utf-8"';
 
 		my ($result, $numret, $total) = get_listing("$obj_id", "$start", "$cnt");
-		my $updid = 1;
+		$updid++;
 
 		$result = encode_entities($result);
 		
 		push_response_header 'Cache-control' => 'no-cache';
-		push_response_header 'Pragma' => 'no-cache'
+		push_response_header 'Pragma' => 'no-cache';
 
 		return <<EOR ;
 <?xml version="1.0" encoding="utf-8"?>
